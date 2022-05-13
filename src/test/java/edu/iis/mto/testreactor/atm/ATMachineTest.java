@@ -21,6 +21,9 @@ class ATMachineTest {
 
     private ATMachine atm;
     private final Currency standardCurrency = Currency.getInstance("PLN");
+    private final Card irrelevantCard = Card.create("1234123412341234");
+    private final Money irrelevantMoney = new Money(10, standardCurrency);
+    private final PinCode irrelevantPin = PinCode.createPIN(1, 2, 3, 4);
 
     @BeforeEach
     void setUp() {
@@ -47,6 +50,13 @@ class ATMachineTest {
         MoneyDeposit result = atm.getCurrentDeposit();
         assertEquals(standardCurrency, result.getCurrency());
         assertEquals(banknotes.get(0), result.getBanknotes().get(0));
+    }
+
+    @Test
+    void withdrawNullParameters() {
+        assertThrows(NullPointerException.class, () -> atm.withdraw(null, irrelevantCard, irrelevantMoney));
+        assertThrows(NullPointerException.class, () -> atm.withdraw(irrelevantPin, null, irrelevantMoney));
+        assertThrows(NullPointerException.class, () -> atm.withdraw(irrelevantPin, irrelevantCard, null));
     }
 
 }
