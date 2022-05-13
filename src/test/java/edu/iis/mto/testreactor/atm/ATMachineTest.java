@@ -1,18 +1,25 @@
 package edu.iis.mto.testreactor.atm;
 
 
+import edu.iis.mto.testreactor.atm.bank.AuthorizationException;
 import edu.iis.mto.testreactor.atm.bank.Bank;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.naming.AuthenticationException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Currency;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ATMachineTest {
@@ -70,4 +77,10 @@ class ATMachineTest {
         assertEquals(ErrorCode.WRONG_CURRENCY, result.getErrorCode());
     }
 
+    @Test
+    void withdrawAuthorisationException() throws AuthorizationException {
+        doThrow(ATMOperationException.class).when(bankMock).autorize(anyString(), anyString());
+        ATMOperationException result = assertThrows(ATMOperationException.class, () -> atm.withdraw(standardPin, standardCard, standardMoney));
+        assertEquals(ErrorCode.AHTHORIZATION, result.getErrorCode());
+    }
 }
