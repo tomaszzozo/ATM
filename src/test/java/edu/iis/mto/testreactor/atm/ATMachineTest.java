@@ -1,7 +1,9 @@
 package edu.iis.mto.testreactor.atm;
 
 
+import edu.iis.mto.testreactor.atm.bank.AccountException;
 import edu.iis.mto.testreactor.atm.bank.AuthorizationException;
+import edu.iis.mto.testreactor.atm.bank.AuthorizationToken;
 import edu.iis.mto.testreactor.atm.bank.Bank;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,5 +99,14 @@ class ATMachineTest {
         Money weirdlySpecificAmountOfMoney = new Money(9, standardCurrency);
         ATMOperationException result = assertThrows(ATMOperationException.class, () -> atm.withdraw(standardPin, standardCard, weirdlySpecificAmountOfMoney));
         assertEquals(ErrorCode.WRONG_AMOUNT, result.getErrorCode());
+    }
+
+    @Test
+    void withdrawBankTransactionException() throws AccountException, AuthorizationException {
+        when(bankMock.autorize(anyString(), anyString())).thenReturn(AuthorizationToken.create("12345678"));
+        doThrow(AccountException.class).when(bankMock).charge(any(AuthorizationToken.class), any(Money.class));
+        atm.setDeposit(standardDeposit);
+        ATMOperationException result = assertThrows(ATMOperationException.class, () -> atm.withdraw(standardPin, standardCard, standardMoney));
+        assertEquals(ErrorCode.NO_FUNDS_ON_ACCOUNT, result.getErrorCode());
     }
 }
