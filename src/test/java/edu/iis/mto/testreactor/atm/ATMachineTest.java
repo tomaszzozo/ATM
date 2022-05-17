@@ -8,6 +8,7 @@ import edu.iis.mto.testreactor.atm.bank.Bank;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,12 +17,12 @@ import javax.naming.AuthenticationException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Currency;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ATMachineTest {
@@ -108,5 +109,18 @@ class ATMachineTest {
         atm.setDeposit(standardDeposit);
         ATMOperationException result = assertThrows(ATMOperationException.class, () -> atm.withdraw(standardPin, standardCard, standardMoney));
         assertEquals(ErrorCode.NO_FUNDS_ON_ACCOUNT, result.getErrorCode());
+    }
+
+    @Test
+    void withdrawCorrectAmountOfMoney() {
+        atm.setDeposit(standardDeposit);
+        Withdrawal result = null;
+        try {
+            result = atm.withdraw(standardPin, standardCard, standardMoney);
+        } catch (Exception ignored) {
+            fail("Should not throw any exception!");
+        }
+        ArrayList<Banknote> expectedResult = new ArrayList<>(Collections.singletonList(Banknote.PL_10));
+        assertEquals(expectedResult, result.getBanknotes());
     }
 }
