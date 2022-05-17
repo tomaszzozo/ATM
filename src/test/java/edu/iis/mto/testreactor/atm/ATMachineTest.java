@@ -90,4 +90,12 @@ class ATMachineTest {
         ATMOperationException result = assertThrows(ATMOperationException.class, () -> atm.withdraw(standardPin, standardCard, tooMuchMoney));
         assertEquals(ErrorCode.WRONG_AMOUNT, result.getErrorCode());
     }
+
+    @Test
+    void cantWithdrawSpecificAmountException() {
+        atm.setDeposit(standardDeposit);
+        Money weirdlySpecificAmountOfMoney = new Money(9, standardCurrency);
+        ATMOperationException result = assertThrows(ATMOperationException.class, () -> atm.withdraw(standardPin, standardCard, weirdlySpecificAmountOfMoney));
+        assertEquals(ErrorCode.WRONG_AMOUNT, result.getErrorCode());
+    }
 }
