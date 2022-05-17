@@ -53,7 +53,6 @@ class ATMachineTest {
 
     @Test
     void getCurrentDepositTest() {
-
         atm.setDeposit(standardDeposit);
 
         MoneyDeposit result = atm.getCurrentDeposit();
@@ -79,8 +78,16 @@ class ATMachineTest {
 
     @Test
     void withdrawAuthorisationException() throws AuthorizationException {
-        doThrow(ATMOperationException.class).when(bankMock).autorize(anyString(), anyString());
+        doThrow(AuthorizationException.class).when(bankMock).autorize(anyString(), anyString());
         ATMOperationException result = assertThrows(ATMOperationException.class, () -> atm.withdraw(standardPin, standardCard, standardMoney));
         assertEquals(ErrorCode.AHTHORIZATION, result.getErrorCode());
+    }
+
+    @Test
+    void withdrawTooMuchException() {
+        atm.setDeposit(standardDeposit);
+        Money tooMuchMoney = new Money(1000000, standardCurrency);
+        ATMOperationException result = assertThrows(ATMOperationException.class, () -> atm.withdraw(standardPin, standardCard, tooMuchMoney));
+        assertEquals(ErrorCode.WRONG_AMOUNT, result.getErrorCode());
     }
 }
